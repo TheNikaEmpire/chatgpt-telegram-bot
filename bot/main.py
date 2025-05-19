@@ -110,7 +110,21 @@ def main():
     plugin_manager = PluginManager(config=plugin_config)
     openai_helper = OpenAIHelper(config=openai_config, plugin_manager=plugin_manager)
     telegram_bot = ChatGPTTelegramBot(config=telegram_config, openai=openai_helper)
-    telegram_bot.run()
+
+import threading
+import http.server
+import socketserver
+
+PORT = int(os.environ.get('PORT', 8080))
+
+def run_server():
+    with socketserver.TCPServer(("", PORT), http.server.SimpleHTTPRequestHandler) as httpd:
+        print(f"Serving at port {PORT}")
+        httpd.serve_forever()
+
+threading.Thread(target=run_server).start()
+
+telegram_bot.run()
 
 
 if __name__ == '__main__':
